@@ -110,6 +110,31 @@ function parsearResultado(html, cedula) {
     }
   }
 
+  const clavesEncontradas = Object.keys(datos).filter(
+    (k) => k !== "cedula",
+  ).length;
+
+  if (clavesEncontradas === 0) {
+    const noEncontrado = /no (encontrado|existe|registrado)/i.test(html);
+    if (noEncontrado) {
+      datos.error = "Cédula no encontrada";
+      return datos;
+    }
+
+    const divResult = html.match(
+      /<div[^>]*class="[^"]*card[^"]*"[^>]*>([\s\S]*?)<\/div>\s*<\/div>/i,
+    );
+    if (divResult) {
+      const texto = divResult[1]
+        .replace(/<[^>]+>/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+      if (texto) {
+        datos.texto = texto;
+      }
+    }
+  }
+
   return datos;
 }
 
